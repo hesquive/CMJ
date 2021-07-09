@@ -10,7 +10,7 @@ if numRandomVariables==2
     
     numPoints=50;
     
-    s=getProbabilitySupports(probabilityInfo);
+    s=getProbabilitySupports_Plot(probabilityInfo);
     
     x1=linspace(s(1,1),s(1,2),numPoints);
     x2=linspace(s(2,1),s(2,2),numPoints);

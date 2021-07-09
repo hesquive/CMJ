@@ -1,4 +1,4 @@
-function s=getProbabilitySupports(probabilityInfo)
+function s=getProbabilitySupports_Plot(probabilityInfo)
 % Hugo Esquivel, 2021
 % -
 

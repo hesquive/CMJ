@@ -133,9 +133,9 @@ fprintf('Random variables x1 and x2 contribute to the total variance response by
 % ----------------------------------------------------------------------------------------------------------------------
 % NISP: Plots:
 % ----------------------------------------------------------------------------------------------------------------------
-plotJointProbabilityDistribution(probabilityInfo)
+%plotJointProbabilityDistribution(probabilityInfo)
 %plotActualStructuralResponse(fact,probabilityInfo)
 %plotApproximateStructuralResponse(g,probabilityInfo)
-%plotRandomBasisVectors(Psinum,probabilityInfo)
+plotRandomBasisVectors(Psinum,probabilityInfo)
 plotApproximationError(fact,g,probabilityInfo)
 % ----------------------------------------------------------------------------------------------------------------------
