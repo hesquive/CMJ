@@ -13,7 +13,7 @@ probabilityInfo.pars=cell(numRandomVariables,1); % distribution's parameters (if
 
 % 1st random variable (this can be understood as fc after normalization):
 rv=1;
-probabilityInfo.name{rv}='Beta'; % options: Uniform, Beta, Normal
+probabilityInfo.name{rv}='Normal'; % options: Uniform, Beta, Normal
 
 if strcmpi(probabilityInfo.name{rv},'Beta')
     probabilityInfo.pars{rv}=[2,5]; % parameters: alpha and beta
@@ -21,18 +21,18 @@ end
 
 % 2nd random variable (this can be understood as fy after normalization):
 rv=2;
-probabilityInfo.name{rv}='Beta'; % options: Uniform, Beta, Normal
+probabilityInfo.name{rv}='Normal'; % options: Uniform, Beta, Normal
 
 if strcmpi(probabilityInfo.name{rv},'Beta')
     probabilityInfo.pars{rv}=[2,5]; % parameters: alpha and beta
 end
 
 numRealizations=5e4; % number of realizations
-numRandomBasisVectorsPerDimension=4; % cardinality of random basis over each random dimension
+numRandomBasisVectorsPerDimension=4; % number ran
 
 x=getRealizationsFromRandomVariables(numRealizations,probabilityInfo); % this can be understood as the simulation input
 
-fact=getStructuralResponse(probabilityInfo); % actual structural response (hidden by the simulation; i.e. unknown)
+fact=getStructuralResponse(probabilityInfo);
 f=getEvaluationOfStructuralResponse(fact,x,probabilityInfo); % this can be understood as the simulation output
 % ----------------------------------------------------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@ fprintf('Random variables x1 and x2 contribute to the total variance response by
 % ----------------------------------------------------------------------------------------------------------------------
 % NISP: Plots:
 % ----------------------------------------------------------------------------------------------------------------------
-plotJointProbabilityDistribution(probabilityInfo)
+%plotJointProbabilityDistribution(probabilityInfo)
 %plotActualStructuralResponse(fact,probabilityInfo)
 %plotApproximateStructuralResponse(g,probabilityInfo)
 %plotRandomBasisVectors(Psinum,probabilityInfo)
