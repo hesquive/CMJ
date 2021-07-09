@@ -1,36 +1,42 @@
-function plotApproximationError(fact,fapprox)
+function plotApproximationError(fact,g,probabilityInfo)
 % Hugo Esquivel, 2021
 % -
 
-fact=matlabFunction(fact);
-fapprox=matlabFunction(fapprox);
+numRandomVariables=length(probabilityInfo.name);
 
-numPoints=50;
-
-x1=linspace(-1,1,numPoints); % x1 = [-1,1]
-x2=linspace(-1,1,numPoints); % x2 = [-1,1]
-
-[x1grid,x2grid]=meshgrid(x1,x2);
-factgrid=fact(x1grid,x2grid);
-fapproxgrid=fapprox(x1grid,x2grid);
-
-epsgrid=factgrid-fapproxgrid;
-
-figure
-surf(x1grid,x2grid,epsgrid)
-colormap(jet)
-title('\bfseries{Approximation Error, $\epsilon$}','Interpreter','LaTeX')
-xlabel('$x_1$','Interpreter','LaTeX')
-ylabel('$x_2$','Interpreter','LaTeX')
-zlabel('$\epsilon(x_1,x_2)$','Interpreter','LaTeX')
-
-figure
-surf(x1grid,x2grid,factgrid)
-hold on
-surf(x1grid,x2grid,fapproxgrid)
-colormap(jet)
-title('\bfseries{Actual and Approximate Structural Response, $f_\mathrm{act},\,f_\mathrm{approx}$}','Interpreter','LaTeX')
-xlabel('$x_1$','Interpreter','LaTeX')
-ylabel('$x_2$','Interpreter','LaTeX')
-zlabel('$f_\mathrm{act}(x_1,x_2),\,f_\mathrm{approx}(x_1,x_2)$','Interpreter','LaTeX')
+if numRandomVariables==2
+    fact=matlabFunction(fact);
+    g=matlabFunction(g);
+    
+    numPoints=50;
+    
+    s=getProbabilitySupports(probabilityInfo);
+    
+    x1=linspace(s(1,1),s(1,2),numPoints);
+    x2=linspace(s(2,1),s(2,2),numPoints);
+    
+    [x1grid,x2grid]=meshgrid(x1,x2);
+    factgrid=fact(x1grid,x2grid);
+    ggrid=g(x1grid,x2grid);
+    
+    epsgrid=factgrid-ggrid;
+    
+    figure
+    surf(x1grid,x2grid,epsgrid)
+    colormap(turbo)
+    title('\bfseries{Approximation Error, $\epsilon$}','Interpreter','LaTeX')
+    xlabel('$x_1$','Interpreter','LaTeX')
+    ylabel('$x_2$','Interpreter','LaTeX')
+    zlabel('$\epsilon(x_1,x_2)$','Interpreter','LaTeX')
+    
+    figure
+    surf(x1grid,x2grid,factgrid)
+    hold on
+    surf(x1grid,x2grid,ggrid)
+    colormap(turbo)
+    title('\bfseries{Actual and Approximate Structural Response, $f,g$}','Interpreter','LaTeX')
+    xlabel('$x_1$','Interpreter','LaTeX')
+    ylabel('$x_2$','Interpreter','LaTeX')
+    zlabel('$f(x_1,x_2),\,g(x_1,x_2)$','Interpreter','LaTeX')
+end
 end

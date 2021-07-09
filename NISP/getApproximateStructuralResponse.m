@@ -1,14 +1,14 @@
-function fapprox=getApproximateStructuralResponse(coeff,Psi)
+function g=getApproximateStructuralResponse(coeff,Psi)
 % Hugo Esquivel, 2021
 % -
 
 numRandomBasisVectors=length(Psi);
 
-fapprox=sym(0);
+g=sym(0);
 
 for k=1:numRandomBasisVectors
-    fapprox=fapprox+coeff(k)*Psi{k};
+    g=g+coeff(k)*Psi{k};
 end
 
-fapprox=expand(vpa(fapprox));
+g=expand(vpa(g));
 end

@@ -1,8 +1,12 @@
-function Psinum=getNumericRandomBasisVectors(Psi)
+function Psinum=getNumericRandomBasisVectors(Psi,probabilityInfo)
 % Hugo Esquivel, 2021
 % -
 
-syms x1 x2
+numRandomVariables=length(probabilityInfo.name);
+
+if numRandomVariables==2
+    syms x1 x2
+end
 
 numRandomBasisVectors=length(Psi);
 

@@ -22,29 +22,29 @@ switch probabilityDistribution
         
     case 'Beta'
         % probability density of x1 (assuming that x1 is a beta distributed random variable in [-1,1])
-        alphax1=2;
-        betax1=5;
-        pdf1=(x1+1)^(alphax1-1)*(1-x1)^(betax1-1)/(2^(alphax1+betax1-1)*beta(alphax1,betax1));
+        alpha1=2;
+        beta1=5;
+        pdf1=(x1+1)^(alpha1-1)*(1-x1)^(beta1-1)/(2^(alpha1+beta1-1)*beta(alpha1,beta1));
         
         % probability density of x2 (assuming that x2 is a beta distributed random variable in [-1,1])
-        alphax2=5;
-        betax2=1;
-        pdf2=(x2+1)^(alphax2-1)*(1-x2)^(betax2-1)/(2^(alphax2+betax2-1)*beta(alphax2,betax2));
+        alpha2=5;
+        beta2=1;
+        pdf2=(x2+1)^(alpha2-1)*(1-x2)^(beta2-1)/(2^(alpha2+beta2-1)*beta(alpha2,beta2));
         
         % probability density of x3 (assuming that x3 is a beta distributed random variable in [-1,1])
-        alphax3=2;
-        betax3=2;
-        pdf3=(x3+1)^(alphax3-1)*(1-x3)^(betax3-1)/(2^(alphax3+betax3-1)*beta(alphax3,betax3));
+        alpha3=2;
+        beta3=2;
+        pdf3=(x3+1)^(alpha3-1)*(1-x3)^(beta3-1)/(2^(alpha3+beta3-1)*beta(alpha3,beta3));
         
         % probability density of x4 (assuming that x4 is a beta distributed random variable in [-1,1])
-        alphax4=2;
-        betax4=4;
-        pdf4=(x4+1)^(alphax4-1)*(1-x4)^(betax4-1)/(2^(alphax4+betax4-1)*beta(alphax4,betax4));
+        alpha4=2;
+        beta4=4;
+        pdf4=(x4+1)^(alpha4-1)*(1-x4)^(beta4-1)/(2^(alpha4+beta4-1)*beta(alpha4,beta4));
         
         % probability density of x5 (assuming that x5 is a beta distributed random variable in [-1,1])
-        alphax5=1;
-        betax5=3;
-        pdf5=(x5+1)^(alphax5-1)*(1-x5)^(betax5-1)/(2^(alphax5+betax5-1)*beta(alphax5,betax5));
+        alpha5=1;
+        beta5=3;
+        pdf5=(x5+1)^(alpha5-1)*(1-x5)^(beta5-1)/(2^(alpha5+beta5-1)*beta(alpha5,beta5));
 end
 
 pdf12=pdf1*pdf2; % joint probability density of x1 and x2

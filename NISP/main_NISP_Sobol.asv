@@ -6,45 +6,73 @@ clearvars; close all; clc;
 % ----------------------------------------------------------------------------------------------------------------------
 % Input:
 % ----------------------------------------------------------------------------------------------------------------------
-syms x1 x2 % random variables x1 and x2 (these can be understood as fc and fy, respectively)
+numRandomVariables=2;
 
-f=getStructuralResponse(x1,x2); % structural response f (this can be understood as the roof drift ratio)
-plotStructuralResponse(f) % plots structural response f
+probabilityInfo.name=cell(numRandomVariables,1);
+probabilityInfo.supp=cell(numRandomVariables,1);
+probabilityInfo.pars=cell(numRandomVariables,1);
 
-probabilityDistribution='Uniform'; % options: Uniform or Beta
+% FIRST random variable (this can be understood as fc after normalization):
+rv=1;
+probabilityInfo.name{rv}='Normal'; % distribution's name (Options: Uniform, Beta, Normal)
 
-switch probabilityDistribution
-    case 'Uniform'
-        pdf1=1/2; % probability density of x1 (assuming that x1 is a uniformly distributed random variable in [-1,1])
-        pdf2=1/2; % probability density of x2 (assuming that x2 is a uniformly distributed random variable in [-1,1])
-        
-    case 'Beta'
-        % probability density of x1 (assuming that x1 is a beta distributed random variable in [-1,1])
-        alpha1=2;
-        beta1=5;
-        pdf1=(x1+1)^(alpha1-1)*(1-x1)^(beta1-1)/(2^(alpha1+beta1-1)*beta(alpha1,beta1));
-        
-        % probability density of x2 (assuming that x2 is a beta distributed random variable in [-1,1])
-        alpha2=5;
-        beta2=1;
-        pdf2=(x2+1)^(alpha2-1)*(1-x2)^(beta2-1)/(2^(alpha2+beta2-1)*beta(alpha2,beta2));
+if strcmpi(probabilityInfo.name{rv},'Beta')
+    probabilityInfo.pars{rv}=[2,5]; % distribution's parameters (alpha and beta)
 end
 
-pdf12=pdf1*pdf2; % joint probability density of x1 and x2
+% SECOND random variable (this can be understood as fy after normalization):
+rv=2;
+probabilityInfo.name{rv}='Normal'; % distribution's name (Options: Uniform, Beta, Normal)
+
+if strcmpi(probabilityInfo.name{rv},'Beta')
+    probabilityInfo.pars{rv}=[2,5]; % distribution's parameters (alpha and beta)
+end
+
+numRealizations=5e4;
+numRandomBasisVectorsPerDimension=4;
+
+x=getRealizationsFromRandomVariables(numRealizations,probabilityInfo); % this can be understood as the simulation input
+
+fact=getStructuralResponse(probabilityInfo);
+f=getEvaluationOfStructuralResponse(fact,x,probabilityInfo); % this can be understood as the simulation output
 % ----------------------------------------------------------------------------------------------------------------------
 
 
 % ----------------------------------------------------------------------------------------------------------------------
-% Decomposition of structural response:
+% NISP: Approximating simulation output (aka structural response):
 % ----------------------------------------------------------------------------------------------------------------------
-f0=int(int(f*pdf12,x1,-1,1),x2,-1,1); % total mean
+probabilityInfo=getProbabilityDistribution(probabilityInfo);
 
-f1=int(f*pdf2,x2,-1,1)-f0;
-f2=int(f*pdf1,x1,-1,1)-f0;
+Psi=getRandomBasisVectors(numRandomBasisVectorsPerDimension,probabilityInfo);
+Psinum=getNumericRandomBasisVectors(Psi,probabilityInfo);
 
-f12=f-(f0+f1+f2);
+coeff=getCoefficientsOfApproximateStructuralResponse(x,f,Psinum);
+g=getApproximateStructuralResponse(coeff,Psi);
+
+fprintf('Mean-Squared Error: %.4f\n\n',computeMeanSquaredError(x,f,g,probabilityInfo))
 % ----------------------------------------------------------------------------------------------------------------------
 
+
+% ----------------------------------------------------------------------------------------------------------------------
+% SOBOL: Decomposition of structural response:
+% ----------------------------------------------------------------------------------------------------------------------
+syms x [1,numRandomVariables]
+
+pdf=cell(numRandomVariables,1);
+supp=cell(numRandomVariables,1);
+
+for i=1:numRandomVariables
+    pdf{i}=probabilityInfo.pdf{i}(x(i));
+    supp{i}=probabilityInfo.supp{i};
+end
+
+g0=int(int(g*pdf{1}*pdf{2},x1,supp{1}(1),supp{1}(2)),x2,supp{2}(1),supp{2}(2)); % total mean
+
+g1=int(g*pdf{2},x2,supp{2}(1),supp{2}(2))-g0;
+g2=int(g*pdf{1},x1,supp{1}(1),supp{1}(2))-g0;
+
+g12=g-(g0+g1(x1)+g2(x2));
+% ----------------------------------------------------------------------------------------------------------------------
 
 % ----------------------------------------------------------------------------------------------------------------------
 % Checking orthogonality of decomposition:
@@ -97,34 +125,12 @@ fprintf('Random variables x1 and x2 contribute to the total variance response by
 % ----------------------------------------------------------------------------------------------------------------------
 
 
-
 % ----------------------------------------------------------------------------------------------------------------------
-% Functions:
+% Plots:
 % ----------------------------------------------------------------------------------------------------------------------
-function plotStructuralResponse(f)
-f=matlabFunction(f);
-
-numPoints=50;
-
-x1=linspace(-1,1,numPoints); % x1 = [-1,1]
-x2=linspace(-1,1,numPoints); % x2 = [-1,1]
-
-[x1grid,x2grid]=meshgrid(x1,x2);
-fgrid=f(x1grid,x2grid);
-
-surf(x1grid,x2grid,fgrid)
-colormap(jet)
-title('\bfseries{Structural Response, $f$}','Interpreter','LaTeX')
-xlabel('$x_1$','Interpreter','LaTeX')
-ylabel('$x_2$','Interpreter','LaTeX')
-zlabel('$f(x_1,x_2)$','Interpreter','LaTeX')
-end
-
-function f=getStructuralResponse(x1,x2)
-p1=legendreP(2,x1)+jacobiP(3,3,5,x1); % a univariate function defined on x1 = [-1,1]
-p2=legendreP(5,x2)+jacobiP(2,2,7,x2); % a univariate function defined on x2 = [-1,1]
-
-% Structural response of interest (notice that this f is a function of x1 and x2):
-f=p1*p2/1e2; % a bivariate function defined on x1 x x2 = [-1,1]^2
-end
+plotJointProbabilityDistribution(probabilityInfo)
+%plotActualStructuralResponse(fact,probabilityInfo)
+%plotApproximateStructuralResponse(fapprox,probabilityInfo)
+%plotRandomBasisVectors(Psinum,probabilityInfo)
+plotApproximationError(fact,g,probabilityInfo)
 % ----------------------------------------------------------------------------------------------------------------------
