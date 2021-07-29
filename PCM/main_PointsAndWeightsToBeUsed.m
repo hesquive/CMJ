@@ -24,8 +24,8 @@ w1=d(:,2)/sqrt(pi); % probabilists' version of Hermite quadrature weights
 
 numPoints=numPointsPerDimension^numRandomVariables; % because a full tensor product will be used below
 
-z=zeros(numPoints,numRandomVariables);
-w=zeros(numPoints,1);
+z=zeros(numPoints,numRandomVariables); % quadrature points
+w=zeros(numPoints,1); % quadrature weights
 
 k=0;
 
@@ -74,17 +74,18 @@ fprintf('\n')
 % ----------------------------------------------------------------------------------------------------------------------
 fprintf('Checking this approach with a polynomial function:\n')
 
-% suppose we are interested in calculating the mean and variance of the following function:
 syms x1 x2 x3 x4 x5
 
-fun=(x2+1)*(x3-2)*(x5-4)+(x1-1)^2*(x3+2)*(x4+1);
-pdf=(1/sqrt(2*pi))^5*exp(-1/2*(x1^2+x2^2+x3^2+x4^2+x5^2));
+% analytical evaluation of mean and variance:
+fun=(x2+1)*(x3-2)*(x5-4)+(x1-1)^2*(x3+2)*(x4+1); % polynomial function
+pdf=(1/sqrt(2*pi))^5*exp(-1/2*(x1^2+x2^2+x3^2+x4^2+x5^2)); % joint pdf
 
 mean1=double(int(int(int(int(int(fun*pdf,x5,-Inf,Inf),x4,-Inf,Inf),x3,-Inf,Inf),x2,-Inf,Inf),x1,-Inf,Inf)); % exact mean
 var1=double(int(int(int(int(int((fun-mean1)^2*pdf,x5,-Inf,Inf),x4,-Inf,Inf),x3,-Inf,Inf),x2,-Inf,Inf),x1,-Inf,Inf)); % exact variance
 
-funnum=matlabFunction(fun,'Vars',[x1,x2,x3,x4,x5]);
-pdfnum=matlabFunction(pdf,'Vars',[x1,x2,x3,x4,x5]);
+% numerical evaluation of mean and variance:
+funnum=matlabFunction(fun,'Vars',[x1,x2,x3,x4,x5]); % polynomial function
+pdfnum=matlabFunction(pdf,'Vars',[x1,x2,x3,x4,x5]); % joint pdf
 
 mean2=sum(funnum(p(:,1),p(:,2),p(:,3),p(:,4),p(:,5)).*v); % approximate mean
 var2=sum((funnum(p(:,1),p(:,2),p(:,3),p(:,4),p(:,5))-mean2).^2.*v); % approximate variance
