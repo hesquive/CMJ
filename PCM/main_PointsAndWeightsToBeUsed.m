@@ -3,37 +3,39 @@
 
 clearvars; close all; clc;
 
+
 % ----------------------------------------------------------------------------------------------------------------------
 % INPUT:
 % ----------------------------------------------------------------------------------------------------------------------
-numRandomVariables=5; % assumed to be normally distributed (all of them)
+numRandomVariables=5; % do not modify... they are assumed to be normally distributed (all of them)
 
-numPointsPerDimension=11; % number of quadrature points to be used on each random dimension
-
-fileName=sprintf('Hermite-%d.txt',numPointsPerDimension); % file containing Hermite's quadrature information
+numPoints1=11; % number of quadrature points to be used on each random dimension
 % ----------------------------------------------------------------------------------------------------------------------
+
 
 
 % ----------------------------------------------------------------------------------------------------------------------
 % BODY:
 % ----------------------------------------------------------------------------------------------------------------------
+fileName=sprintf('Hermite-%d.txt',numPoints1); % file containing Hermite's quadrature information
+
 d=load(fileName,'r');
 
-z1=d(:,1)*sqrt(2); % probabilists' version of Hermite quadrature points
-w1=d(:,2)/sqrt(pi); % probabilists' version of Hermite quadrature weights
+z1=d(:,1)*sqrt(2); % Hermite quadrature points (probabilists' version)
+w1=d(:,2)/sqrt(pi); % Hermite quadrature weights (probabilists' version)
 
-numPoints=numPointsPerDimension^numRandomVariables; % because a full tensor product will be used below
+numPoints=numPoints1^numRandomVariables; % because a full tensor product will be used below
 
 z=zeros(numPoints,numRandomVariables); % quadrature points
 w=zeros(numPoints,1); % quadrature weights
 
 k=0;
 
-for i5=1:numPointsPerDimension
-    for i4=1:numPointsPerDimension
-        for i3=1:numPointsPerDimension
-            for i2=1:numPointsPerDimension
-                for i1=1:numPointsPerDimension
+for i5=1:numPoints1
+    for i4=1:numPoints1
+        for i3=1:numPoints1
+            for i2=1:numPoints1
+                for i1=1:numPoints1
                     k=k+1;
                     
                     z(k,1)=z1(i1);
@@ -67,6 +69,7 @@ fprintf('\n')
 %        ith_sigma * p(:,i) + ith_mu,
 %   where ith_sigma and ith_mu are the standard deviation and the mean of the ith random variable, respectively.
 % ----------------------------------------------------------------------------------------------------------------------
+
 
 
 % ----------------------------------------------------------------------------------------------------------------------
