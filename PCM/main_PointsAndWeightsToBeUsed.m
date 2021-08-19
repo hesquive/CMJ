@@ -7,9 +7,10 @@ clearvars; close all; clc;
 % ----------------------------------------------------------------------------------------------------------------------
 % INPUT:
 % ----------------------------------------------------------------------------------------------------------------------
-numRandomVariables=5; % do not modify... they are assumed to be normally distributed (all of them)
+numRandomVariables=5; % do not modify... they are assumed here to be identically distributed (all of them)
+numPoints1=11; % number of quadrature points per random dimension
 
-numPoints1=11; % number of quadrature points to be used on each random dimension
+probabilityDistribution='Normal'; % options: Uniform, Beta or Normal
 % ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -17,17 +18,40 @@ numPoints1=11; % number of quadrature points to be used on each random dimension
 % ----------------------------------------------------------------------------------------------------------------------
 % BODY:
 % ----------------------------------------------------------------------------------------------------------------------
-fileName=sprintf('Hermite-%d.txt',numPoints1); % file containing Hermite's quadrature information
-
-d=load(fileName,'r');
-
-z1=d(:,1)*sqrt(2); % Hermite quadrature points (probabilists' version)
-w1=d(:,2)/sqrt(pi); % Hermite quadrature weights (probabilists' version)
+if strcmpi(probabilityDistribution,'Uniform')
+    fileName=sprintf('Legendre-%d.txt',numPoints1); % file containing Legendre's quadrature information
+    
+    d=load(fileName,'r');
+    
+    z1=d(:,1); % Legendre quadrature points per random dimension
+    y1=d(:,2)/2; % Legendre quadrature weights per random dimension (probabilists' version)
+    
+elseif strcmpi(probabilityDistribution,'Beta')
+    betafun=@(x,y) beta(x,y);
+    
+    alpha=2; % do not modify
+    beta=5; % do not modify
+    
+    fileName=sprintf('Jacobi_%d_%d-%d.txt',beta-1,alpha-1,numPoints1); % file containing Jabobi(4,1)'s quadrature information
+    
+    d=load(fileName,'r');
+    
+    z1=d(:,1); % Jacobi(4,1) quadrature points per random dimension
+    y1=d(:,2)/(2^(alpha+beta-1)*betafun(alpha,beta)); % Jacobi(4,1) quadrature weights per random dimension (probabilists' version)
+    
+elseif strcmpi(probabilityDistribution,'Normal')
+    fileName=sprintf('Hermite-%d.txt',numPoints1); % file containing Hermite's quadrature information
+    
+    d=load(fileName,'r');
+    
+    z1=d(:,1)*sqrt(2); %  Hermite quadrature points per random dimension (probabilists' version)
+    y1=d(:,2)/sqrt(pi); % Hermite quadrature weights per random dimension (probabilists' version)
+end
 
 numPoints=numPoints1^numRandomVariables; % because a full tensor product will be used below
 
 z=zeros(numPoints,numRandomVariables); % quadrature points
-w=zeros(numPoints,1); % quadrature weights
+y=zeros(numPoints,1); % quadrature weights
 
 k=0;
 
@@ -44,7 +68,7 @@ for i5=1:numPoints1
                     z(k,4)=z1(i4);
                     z(k,5)=z1(i5);
                     
-                    w(k)=w1(i1)*w1(i2)*w1(i3)*w1(i4)*w1(i5);
+                    y(k)=y1(i1)*y1(i2)*y1(i3)*y1(i4)*y1(i5);
                 end
             end
         end
@@ -53,14 +77,14 @@ end
 
 % now let's ignore those tiny weights that do not contribute significantly to the computation of the mean and variance:
 tol=1e-10; % any weight less than this tolerance will be ignored
-idx=w>tol; % points to be saved are denoted with 1
+idx=y>tol; % points to be saved are denoted with 1
 
 % thus, realizations to be used for seismic simulations:
 p=z(idx,:); % realizations (note that they are normalized wrt the standard normal distribution^)
-v=w(idx); % corresponding weights
+v=y(idx); % corresponding weights
 
-fprintf('Number of points to be used: %d (instead of %d points).\n',length(v),length(w))
-fprintf('Thus, computational cost is reduced by %.1f%%.\n',(1-length(v)/length(w))*100)
+fprintf('Number of points to be used: %d (instead of %d points).\n',length(v),length(y))
+fprintf('Thus, computational cost is reduced by %.1f%%.\n',(1-length(v)/length(y))*100)
 fprintf('Precision of resulting weights is %.14f%%.\n',sum(v)*100)
 fprintf('\n')
 
@@ -68,6 +92,25 @@ fprintf('\n')
 % ^ to denormalize, take each column of p, say the ith column p(:,i), and perform the following operation:
 %        ith_sigma * p(:,i) + ith_mu,
 %   where ith_sigma and ith_mu are the standard deviation and the mean of the ith random variable, respectively.
+% ----------------------------------------------------------------------------------------------------------------------
+
+
+
+% ----------------------------------------------------------------------------------------------------------------------
+% GENERATE FILE WITH POINTS AND WEIGHTS TO BE USED:
+% ----------------------------------------------------------------------------------------------------------------------
+fileName=sprintf('pointsAndWeightsToBeUsed_%s.txt',probabilityDistribution);
+
+fid=fopen(fileName,'w');
+
+for i=1:numPoints
+    if idx(i)==1
+        fprintf(fid,'%d\t%20.14e\t%21.14e\t%21.14e\t%21.14e\t%21.14e\t%21.14e\n',...
+            i,y(i),z(i,1),z(i,2),z(i,3),z(i,4),z(i,5)); % id, weight, point_x1, point_x2, point_x3, point_x4, point_x5
+    end
+end
+
+fclose(fid);
 % ----------------------------------------------------------------------------------------------------------------------
 
 
