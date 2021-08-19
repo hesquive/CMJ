@@ -85,6 +85,7 @@ elseif strcmpi(probabilityDistribution,'Beta')
 elseif strcmpi(probabilityDistribution,'Normal')
     tol=1e-10; % any weight less than this tolerance will be ignored
 end
+
 idx=y>tol; % points to be saved are denoted with 1
 
 % thus, realizations to be used for seismic simulations:
